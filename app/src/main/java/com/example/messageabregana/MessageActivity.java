@@ -3,6 +3,7 @@ package com.example.messageabregana;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +23,8 @@ public class MessageActivity extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EditText etMessage = findViewById(R.id.etMessage);
+                String message = etMessage.getText().toString();
             }
         });
     }
