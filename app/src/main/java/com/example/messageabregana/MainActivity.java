@@ -1,15 +1,19 @@
 package com.example.messageabregana;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,13 +67,35 @@ public class MainActivity extends AppCompatActivity {
     private void btnSendListenerMethod() {
         Intent intent = new Intent(this, MessageActivity.class);
         Button btnSend = findViewById(R.id.btnSend);
+
+        ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == RESULT_OK) {
+                            //TODO: Handle intent
+                            //To receive another intent again based on the result
+                            Intent outIntent = result.getData();
+                            boolean good = outIntent.getBooleanExtra(MessageActivity.EXTRA_RESULT, false);
+                            if (good) {
+                                Toast.makeText(getBaseContext(), "This is a good message", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getBaseContext(), "This is a bad message", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    }
+                });
+
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText etMessage = findViewById(R.id.etMessage);
                 String message = etMessage.getText().toString();
                 intent.putExtra(MessageActivity.EXTRA_MESSAGE, message);
-                startActivity(intent);
+                //FLAGS sample
+                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                launcher.launch(intent);
             }
         });
     }
