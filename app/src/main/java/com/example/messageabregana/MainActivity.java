@@ -5,27 +5,89 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String PREF_NIGHT = "NIGHT";
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences preferences = getSharedPreferences("Abregana", Activity.MODE_PRIVATE);
+        editor = preferences.edit();
+
+        boolean night = preferences.getBoolean(PREF_NIGHT, false);
+        initializeNightMode(night);
+
         btnSendListenerMethod();
         btnCallListenerMethod();
         btnMapListenerMethod();
         btnWebListenerMethod();
+        swNightListenerMethod();
+    }
+
+    private void initializeNightMode(boolean night) {
+        ConstraintLayout clMain = findViewById(R.id.clMain);
+        int textviews[] = {R.id.etMessage, R.id.swNight};
+        if (night) {
+            Switch swNight = findViewById(R.id.swNight);
+            swNight.setChecked(true);
+            clMain.setBackgroundColor(Color.BLACK);
+            for (int tv : textviews) {
+                TextView v = findViewById(tv);
+                v.setTextColor(Color.WHITE);
+            }
+        } else {
+            clMain.setBackgroundColor(Color.WHITE);
+            for (int tv : textviews) {
+                TextView v = findViewById(tv);
+                v.setTextColor(Color.BLACK);
+            }
+        }
+    }
+
+    private void swNightListenerMethod() {
+        Switch swNight = findViewById(R.id.swNight);
+        swNight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConstraintLayout clMain = findViewById(R.id.clMain);
+                int textviews[] = {R.id.etMessage, R.id.swNight};
+                if (swNight.isChecked()) {
+                    editor.putBoolean(PREF_NIGHT, true);
+                    clMain.setBackgroundColor(Color.BLACK);
+                    for (int tv : textviews) {
+                        TextView v = findViewById(tv);
+                        v.setTextColor(Color.WHITE);
+                    }
+                } else {
+                    editor.putBoolean(PREF_NIGHT, false);
+                    clMain.setBackgroundColor(Color.WHITE);
+                    for (int tv : textviews) {
+                        TextView v = findViewById(tv);
+                        v.setTextColor(Color.BLACK);
+                    }
+                } editor.apply();
+            }
+        });
     }
 
     private void btnWebListenerMethod() {
@@ -73,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            //TODO: Handle intent
                             //To receive another intent again based on the result
                             Intent outIntent = result.getData();
                             boolean good = outIntent.getBooleanExtra(MessageActivity.EXTRA_RESULT, false);
@@ -82,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(getBaseContext(), "This is a bad message", Toast.LENGTH_SHORT).show();
                             }
-
                         }
                     }
                 });
